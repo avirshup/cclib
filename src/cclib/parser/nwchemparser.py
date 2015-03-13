@@ -470,6 +470,25 @@ class NWChem(logfileparser.Logfile):
             if not hasattr(self, 'optdone'):
                 self.optdone = []
 
+        ###AMV_addition
+        if line.strip() == 'NWChem Gradients Module':
+            while line: #TODO: replace with self.skip_lines, probably
+                if line.split() == 'atom coordinates gradient'.split():
+                    break
+                else:
+                    line = next(inputfile)
+            for iii in xrange(2): line = next(inputfile)
+            forces = []
+            if not hasattr(self,"grads"):
+                self.grads = []
+            while line.strip():
+                fields = line.split()
+                atforce = map(float,fields[-3:])
+                forces.append(atforce)
+                line = next(inputfile)
+            self.grads.append(forces)
+
+
         # The line containing the final SCF energy seems to be always identifiable like this.
         if "Total SCF energy" in line or "Total DFT energy" in line:
 
