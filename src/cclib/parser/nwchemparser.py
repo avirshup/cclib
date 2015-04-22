@@ -785,6 +785,21 @@ class NWChem(logfileparser.Logfile):
                 assert max(self.atomcharges['mulliken'] - numpy.array(charges)) < 0.01
                 self.atomcharges['mulliken'] = charges
 
+        if line.strip() == 'NWChem Electrostatic Potential Fit Module':
+            while line.strip() != 'ESP':
+                line = next(inputfile)
+            line = next(inputfile)
+            while not line.strip():
+                line = next(inputfile)
+            charges = []
+            for i in xrange(self.natom):
+                charges.append( float(line.split()[-1]) )
+                line = next(inputfile)
+            assert len(line.split()) == 1
+            self.atomcharges['esp'] = charges
+
+
+
         # NWChem prints the dipole moment in atomic units first, and we could just fast forward
         # to the values in Debye, which are also printed. But we can also just convert them
         # right away and so parse a little bit less. Note how the reference point is print
